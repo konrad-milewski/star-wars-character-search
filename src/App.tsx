@@ -1,24 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import get from "./api/get";
+import "./App.css";
+import Details from "./components/Details";
+import Search from "./components/Search";
 
 function App() {
+  const [chosenItem, setChosenItem] = useState<any>({});
+  const [filmsResults, setFilmsResults] = useState<any>([]);
+
+  useEffect(() => {
+    setFilmsResults([])
+    chosenItem?.films &&
+      chosenItem.films.forEach(async (film: string) => {
+        const res = await get(film, true);
+        setFilmsResults((prev: any) => [...prev, res]);
+      });
+  }, [chosenItem.name]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Search setChosenItem={setChosenItem} />} />
+          <Route
+            path="details"
+            element={
+              <Details filmsResults={filmsResults} chosenItem={chosenItem} />
+            }
+          />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
